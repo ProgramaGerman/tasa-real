@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0f1a;
+  --background-secondary: #111827;
+  --foreground: #f8fafc;
+  --foreground-secondary: #94a3b8;
+  --golden: #d4af37;
+  --golden-light: #e6c547;
+  --golden-dark: #b8962f;
+  --success: #10b981;
+  --border: #1e293b;
+  --card: #151f32;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
+  --color-foreground: var(--foreground);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-golden: var(--golden);
+  --color-golden-light: var(--golden-light);
+  --color-golden-dark: var(--golden-dark);
+  --color-success: var(--success);
+  --color-border: var(--border);
+  --color-card: var(--card);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100vh;
+}
+
+.golden-gradient {
+  background: linear-gradient(135deg, var(--golden) 0%, var(--golden-light) 50%, var(--golden) 100%);
+}
+
+.golden-text {
+  background: linear-gradient(135deg, var(--golden) 0%, var(--golden-light) 50%, var(--golden) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card-glow {
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.1);
+}
+
+.success-glow {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+}
