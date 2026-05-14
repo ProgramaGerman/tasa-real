@@ -29,7 +29,7 @@ export async function obtenerTasasBCV(): Promise<TasasBCV> {
 
     const $ = cheerio.load(data);
     
-    let tasas: { usd?: number; eur?: number } = {};
+    const tasas: { usd?: number; eur?: number } = {};
     let fecha = '';
 
     const selectors = [

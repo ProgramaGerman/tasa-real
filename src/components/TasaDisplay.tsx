@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { formatNumber } from '@/utils/formatters';
 
 interface TasasBCV {
@@ -8,33 +8,6 @@ interface TasasBCV {
   eur: number;
   fecha: string;
   ultimaActualizacion: string;
-}
-
-interface IABadgeProps {
-  verificado: boolean;
-  cargando: boolean;
-}
-
-function IABadge({ verificado, cargando }: IABadgeProps) {
-  if (cargando) {
-    return (
-      <span className="inline-flex items-center gap-1 text-xs bg-[var(--card)] px-2 py-1 rounded-full border border-[var(--border)]">
-        <span className="w-2 h-2 bg-[var(--golden)] rounded-full animate-pulse"></span>
-        <span className="text-[var(--foreground-secondary)]">Verificando con IA...</span>
-      </span>
-    );
-  }
-
-  return (
-    <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border ${
-      verificado 
-        ? 'bg-[var(--success)]/10 border-[var(--success)]/30 text-[var(--success)]' 
-        : 'bg-[var(--golden)]/10 border-[var(--golden)]/30 text-[var(--golden)]'
-    }`}>
-      <span className={`w-2 h-2 rounded-full ${verificado ? 'bg-[var(--success)]' : 'bg-[var(--golden)]'}`}></span>
-      <span>{verificado ? 'Verificado por IA' : 'Verificación pendiente'}</span>
-    </span>
-  );
 }
 
 interface TasaCardProps {
@@ -65,45 +38,12 @@ interface TasaDisplayProps {
   tasasIniciales?: TasasBCV;
 }
 
-export default function TasaDisplay({ tasasIniciales }: TasaDisplayProps) {
+export default function TasaDisplay({ tasasIniciales: _tasasInciales }: TasaDisplayProps) {
   const [tasas, setTasas] = useState<TasasBCV | null>(null);
-  const [cargando, setCargando] = useState(false);
-  const [verificandoIA, setVerificandoIA] = useState(false);
-  const [verificadoIA, setVerificadoIA] = useState(false);
+  const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-    
-    if (tasasIniciales) {
-      setTasas(tasasIniciales);
-      verificarConIA();
-    } else {
-      obtenerTasas();
-    }
-  }, [mounted]);
-
-  const verificarConIA = async () => {
-    setVerificandoIA(true);
-    try {
-      const respuesta = await fetch('/api/ia-verify', { method: 'POST' });
-      const data = await respuesta.json();
-      if (data.success && data.data) {
-        setVerificadoIA(data.data.verificado);
-      }
-    } catch (err) {
-      console.error('Error verificando con IA:', err);
-    } finally {
-      setVerificandoIA(false);
-    }
-  };
-
-  const obtenerTasas = async () => {
+  const fetchTasas = useCallback(async () => {
     setCargando(true);
     setError(null);
     try {
@@ -111,33 +51,20 @@ export default function TasaDisplay({ tasasIniciales }: TasaDisplayProps) {
       const data = await respuesta.json();
       if (data.success && data.data) {
         setTasas(data.data);
-        setVerificadoIA(false);
-        await verificarConIA();
       } else {
         setError(data.error || 'Error al obtener tasas');
       }
-    } catch (err) {
+    } catch {
       setError('Error de conexión');
     } finally {
       setCargando(false);
     }
-  };
+  }, []);
 
-  if (!mounted) {
-    return (
-      <div className="w-full max-w-4xl mx-auto p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-[var(--foreground)]">
-            Tasas de Cambio
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <TasaCard titulo="Dólar Estadounidense" simbolo="💵" valor={0} tipo="USD" />
-          <TasaCard titulo="Euro" simbolo="💶" valor={0} tipo="EUR" />
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchTasas();
+  }, [fetchTasas]);
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
@@ -145,16 +72,13 @@ export default function TasaDisplay({ tasasIniciales }: TasaDisplayProps) {
         <h2 className="text-xl font-semibold text-[var(--foreground)]">
           Tasas de Cambio
         </h2>
-        <div className="flex items-center gap-3">
-          <IABadge verificado={verificadoIA} cargando={verificandoIA} />
-          <button
-            onClick={obtenerTasas}
-            disabled={cargando}
-            className="text-sm text-[var(--golden)] hover:text-[var(--golden-light)] disabled:opacity-50"
-          >
-            {cargando ? 'Actualizando...' : 'Actualizar'}
-          </button>
-        </div>
+        <button
+          onClick={() => fetchTasas()}
+          disabled={cargando}
+          className="text-sm text-[var(--golden)] hover:text-[var(--golden-light)] disabled:opacity-50"
+        >
+          {cargando ? 'Actualizando...' : 'Actualizar'}
+        </button>
       </div>
 
       {error && (

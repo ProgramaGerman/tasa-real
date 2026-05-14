@@ -18,10 +18,4 @@ export interface ResponseAPI<T> {
   error?: string;
 }
 
-export interface IAVerifyResponse {
-  usd: number;
-  eur: number;
-  fecha: string;
-  verificado: boolean;
-  notas: string;
-}
+
