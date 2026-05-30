@@ -1,6 +1,8 @@
 export interface TasasBCV {
   usd: number;
   eur: number;
+  usdParalelo: number;
+  diferenciaPorcentual: number;
   fecha: string;
   ultimaActualizacion: string;
 }

@@ -5,8 +5,25 @@ import https from 'https';
 export interface TasasBCV {
   usd: number;
   eur: number;
+  usdParalelo: number;
+  diferenciaPorcentual: number;
   fecha: string;
   ultimaActualizacion: string;
+}
+
+async function obtenerTasaParalelo(): Promise<number> {
+  try {
+    const { data } = await axios.get('https://ve.dolarapi.com/v1/dolares/paralelo', {
+      timeout: 10000,
+    });
+    if (data && typeof data.promedio === 'number') {
+      return data.promedio;
+    }
+    throw new Error('Respuesta inválida de DolarApi');
+  } catch (error) {
+    console.error('Error al obtener tasa del paralelo:', error);
+    throw error;
+  }
 }
 
 const BCV_URL = 'https://www.bcv.org.ve/';
@@ -103,14 +120,36 @@ export async function obtenerTasasBCV(): Promise<TasasBCV> {
       throw new Error('No se pudieron obtener las tasas del BCV');
     }
 
+    const usdParalelo = await obtenerTasaParalelo().catch(() => {
+      // Si la API del paralelo falla, estimamos un 12% por encima como fallback
+      return tasas.usd ? tasas.usd * 1.12 : 0;
+    });
+
+    const diferenciaPorcentual = tasas.usd > 0 
+      ? ((usdParalelo - tasas.usd) / tasas.usd) * 100 
+      : 0;
+
     return {
       usd: tasas.usd,
       eur: tasas.eur,
+      usdParalelo,
+      diferenciaPorcentual,
       fecha,
       ultimaActualizacion: new Date().toISOString(),
     };
   } catch (error) {
-    console.error('Error obteniendo tasas del BCV:', error);
+    console.error('Error obteniendo tasas del BCV, intentando usar caché local:', error);
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const cachePath = path.join(process.cwd(), 'src/data/tasas.json');
+      if (fs.existsSync(cachePath)) {
+        const cacheData = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
+        return cacheData;
+      }
+    } catch (cacheError) {
+      console.error('Error leyendo caché local de tasas:', cacheError);
+    }
     throw new Error('Error al obtener las tasas del BCV');
   }
 }
@@ -123,4 +162,9 @@ export async function obtenerTasaUSD(): Promise<number> {
 export async function obtenerTasaEUR(): Promise<number> {
   const tasas = await obtenerTasasBCV();
   return tasas.eur;
+}
+
+export async function obtenerTasaUSDParalelo(): Promise<number> {
+  const tasas = await obtenerTasasBCV();
+  return tasas.usdParalelo;
 }

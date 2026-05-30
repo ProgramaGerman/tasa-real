@@ -29,6 +29,7 @@ export default async function Home() {
           <Calculadora 
             tasaUSD={tasasIniciales?.usd || 0} 
             tasaEUR={tasasIniciales?.eur || 0} 
+            tasaUSDParalelo={tasasIniciales?.usdParalelo || 0}
           />
         </div>
       </main>

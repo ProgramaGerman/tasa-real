@@ -1,16 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0f1a;
-  --background-secondary: #111827;
-  --foreground: #f8fafc;
-  --foreground-secondary: #94a3b8;
-  --golden: #d4af37;
-  --golden-light: #e6c547;
-  --golden-dark: #b8962f;
-  --success: #10b981;
-  --border: #1e293b;
-  --card: #151f32;
+  --background: #282c34;
+  --background-secondary: #21252b;
+  --foreground: #abb2bf;
+  --foreground-secondary: #828997;
+  --golden: #d19a66;
+  --golden-light: #e5c07b;
+  --golden-dark: #b5763a;
+  --success: #98c379;
+  --error: #e06c75;
+  --border: #3e4452;
+  --card: #1e2227;
+  --blue: #61afef;
+  --purple: #c678dd;
+  --cyan: #56b6c2;
 }
 
 @theme inline {
@@ -22,19 +26,31 @@
   --color-golden-light: var(--golden-light);
   --color-golden-dark: var(--golden-dark);
   --color-success: var(--success);
+  --color-error: var(--error);
   --color-border: var(--border);
   --color-card: var(--card);
+  --color-blue: var(--blue);
+  --color-purple: var(--purple);
+  --color-cyan: var(--cyan);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   min-height: 100vh;
 }
 
 .golden-gradient {
   background: linear-gradient(135deg, var(--golden) 0%, var(--golden-light) 50%, var(--golden) 100%);
+}
+
+.blue-gradient {
+  background: linear-gradient(135deg, var(--blue) 0%, var(--cyan) 100%);
+}
+
+.purple-gradient {
+  background: linear-gradient(135deg, var(--purple) 0%, var(--blue) 100%);
 }
 
 .golden-text {
@@ -44,10 +60,24 @@ body {
   background-clip: text;
 }
 
+.blue-text {
+  background: linear-gradient(135deg, var(--blue) 0%, var(--cyan) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .card-glow {
-  box-shadow: 0 0 30px rgba(212, 175, 55, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(97, 175, 239, 0.1);
+  border-color: var(--blue);
 }
 
 .success-glow {
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 20px rgba(152, 195, 121, 0.1);
 }
